@@ -1,0 +1,80 @@
+﻿@page "/login"
+@using ACS_Web.Helper;
+@using ACS_Web.Model;
+@using ACS_Web.Model.ResponseModel;
+@using ACS_Web.Services.Interface;
+@inject NavigationManager Navigate;
+@inject IAuthenticationService ia;
+
+<center>
+
+        <div class="col-12 row">
+            <div class="col-6" >
+                <img width="400px" height="400px"/>
+            </div>
+            <div class="col-6" style="border-left:groove">
+                <EditForm Model="@user" OnValidSubmit="@ValidateUser" >
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                <div>
+                    <br /><br /><br /><br /><br />
+                </div>
+                <div>
+                    <h3 style="font-weight:bold; color:purple">Book Stores Login</h3>
+                </div>
+                <div>
+                    <br />
+                </div>
+
+                <div class="col-12 row">
+                    <input type="email" class="form-control col-12" @bind="user.userName" placeholder="email address" />
+                    <ValidationMessage For="(()=> user.userName)"/>
+                </div>
+                <br />
+                <div class="col-12 row">
+                    <input type="password" class="form-control col-12" @bind="user.password" placeholder="password" />
+                    <ValidationMessage For="(()=> user.password)" />
+                </div>
+                <br />
+                <div class="col-12 row">
+                    <span class="col-12"></span>
+                    <input type="submit" class="form-control col-6 btn btn-primary" value="Login" />
+
+                    <a  @onclick="UpdateHeading" class="col-3">Sign up</a>
+                </div>
+                <br />
+                <div class="col-12 row" style="text-align:left; font-weight:bold">
+                    <span class="col-12">@LoginMesssage</span>
+                </div>
+                </EditForm>        
+             </div>
+        
+        </div>
+
+</center>
+
+@code {
+    private LoginModel user;
+    public string LoginMesssage { get; set; }
+    protected override Task OnInitializedAsync()
+    { 
+        user = new LoginModel();
+        return base.OnInitializedAsync();
+    }
+    private async Task<bool> ValidateUser()
+    {
+        //assume that user is valid
+        string output = await ia.login(user);
+        LoginMesssage = output.ToString();
+        if (LoginMesssage.ToLower()=="success")
+            Navigate.NavigateTo("/");
+        return await Task.FromResult(true);
+    }
+    private async Task<bool> UpdateHeading()
+    {
+        await ia.Revoke();
+
+        return true;
+    }
+}
+
